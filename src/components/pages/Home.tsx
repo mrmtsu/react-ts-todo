@@ -1,5 +1,5 @@
 import { Button, IconButton } from "@chakra-ui/button"
-import { SunIcon } from "@chakra-ui/icons";
+import { ArrowBackIcon, CheckIcon, DeleteIcon, SunIcon } from "@chakra-ui/icons";
 import { Input } from "@chakra-ui/input"
 import { Flex, Stack } from "@chakra-ui/layout";
 import { Table, TableCaption, Tbody, Td, Tr } from "@chakra-ui/table";
@@ -7,14 +7,38 @@ import { ChangeEvent, memo, useState, VFC } from "react"
 
 export const Home: VFC = memo(() => {
   const [tasks, setTasks] = useState<Array<string>>([]);
-const [currentValue, setCurrentValue] = useState('');
+  const [completedTasks, setCompletedTasks] = useState<Array<string>>([]);
+  const [currentValue, setCurrentValue] = useState('');
 
   const onChangeValue = (e: ChangeEvent<HTMLInputElement>) => setCurrentValue(e.target.value);
 
   const onClickAdd = () => {
-    // const newTodos = [...tasks, currentValue];
     setTasks([...tasks, currentValue]);
     setCurrentValue('')
+  };
+
+  const onClickCompleteButton = (index: number) => {
+    const newCompleteTodos = [...tasks];
+    newCompleteTodos.splice(index, 1);
+
+    const newCompletedTodos = [...completedTasks, tasks[index]];
+    setTasks(newCompleteTodos);
+    setCompletedTasks(newCompletedTodos);
+  };
+
+  const onClickDeleteButton = (index: number) => {
+    const newCompleteTodos = [...tasks];
+    newCompleteTodos.splice(index, 1);
+    setTasks(newCompleteTodos);
+  };
+
+  const onClickReturnButton = (index: number) => {
+    const returnCompletedTasks = [...completedTasks];
+    returnCompletedTasks.splice(index, 1);
+
+    const returnCompleteTodos = [...tasks, completedTasks[index]];
+    setCompletedTasks(returnCompletedTasks);
+    setTasks(returnCompleteTodos);
   };
 
   return (
@@ -32,12 +56,31 @@ const [currentValue, setCurrentValue] = useState('');
             <Table colorScheme="teal">
               <TableCaption placement="top">未完了TODOリスト</TableCaption>
               <Tbody>
-                {tasks.map((task) => (
-                  <Tr key={task}>
-                    <Td>{task}</Td>
-                    <Td isNumeric>完了</Td>
-                    <Td isNumeric>削除</Td>
-                  </Tr>
+                {tasks.map((task, index) => (
+                    <Tr key={task}>
+                      <Td>{task}</Td>
+                      <Td isNumeric>
+                        <IconButton
+                          aria-label="完了ボタン"
+                          icon={<CheckIcon />}
+                          size="sm" borderRadius="3xl"
+                          _hover={{ bg: "teal.400", color: "white" }}
+                          _focus={{ outline: "none" }}
+                          mr={{ base: "1px", md: "2"}}
+                          flex=""
+                          onClick={() => onClickCompleteButton(index)}
+                        />
+                        <IconButton
+                          aria-label="削除ボタン"
+                          icon={<DeleteIcon />}
+                          size="sm"
+                          borderRadius="3xl"
+                          _hover={{ bg: "red.400", color: "white" }}
+                          _focus={{ outline: "none" }}
+                          onClick={() => onClickDeleteButton(index)}
+                        />
+                      </Td>
+                    </Tr>
                 ))}
               </Tbody>
             </Table>
@@ -46,14 +89,22 @@ const [currentValue, setCurrentValue] = useState('');
             <Table colorScheme="gray">
               <TableCaption placement="top">完了TODOリスト</TableCaption>
               <Tbody>
-                <Tr>
-                  <Td>PHPの勉強</Td>
-                  <Td isNumeric>戻す</Td>
-                </Tr>
-                <Tr>
-                  <Td>Laravelの勉強</Td>
-                  <Td isNumeric>戻す</Td>
-                </Tr>
+                {completedTasks.map((completedTask, index) => (
+                  <Tr key={completedTask}>
+                    <Td>{completedTask}</Td>
+                    <Td isNumeric>
+                      <IconButton
+                        aria-label="戻すボタン"
+                        icon={<ArrowBackIcon />}
+                        size="sm"
+                        borderRadius="3xl"
+                        _hover={{ bg: "teal.400", color: "white" }}
+                        _focus={{ outline: "none" }}
+                        onClick={() => onClickReturnButton(index)}
+                      />
+                    </Td>
+                  </Tr>
+                ))}
               </Tbody>
             </Table>
           </Stack>
